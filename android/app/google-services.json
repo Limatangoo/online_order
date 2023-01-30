@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "418877438280",
+    "project_id": "online-order-e232c",
+    "storage_bucket": "online-order-e232c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:418877438280:android:9e90162442fa2504bc1b7d",
+        "android_client_info": {
+          "package_name": "com.example.online_order"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "418877438280-86dpjomrlup43febdaq8gba6bm3675g0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA0ee4WPn7wIbxSBWYIX65nhXEB4SwfN-E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "418877438280-83pfdmthl1ii4r89038rr0ncje43sjmq.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "418877438280-lha9lj6ssjd1uv0b8kkpg1311k9g4ibj.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.onlineOrder"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
