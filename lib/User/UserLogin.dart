@@ -14,6 +14,7 @@ class UserLogin extends StatefulWidget {
 
 class _UserLoginState extends State<UserLogin> {
 final FirebaseAuth _auth = FirebaseAuth.instance;
+
   final _formKey = GlobalKey<FormState>();
   String ?_email, _password,err;
   final emailData = TextEditingController();
@@ -61,7 +62,7 @@ final FirebaseAuth _auth = FirebaseAuth.instance;
                 child: const Text('Sign in'),
               ),
               ElevatedButton(
-                onPressed: ()=>{userLogIn},
+                onPressed: ()=>{signIn()},
                 child: const Text('Sign up'),
               ),
             ],
@@ -70,7 +71,20 @@ final FirebaseAuth _auth = FirebaseAuth.instance;
       ),
     );
   }
+    Future<void> signIn () async{
+    
+      try {
+  final newUser = await _auth.createUserWithEmailAndPassword(
+      email: emailData.text, password: pwdData.text);
+  if (newUser != null) {
+        Navigator.push(context, MaterialPageRoute(
+       builder: (context) => HomePage()));
+  }
+  } on FirebaseAuthException catch (e) {
+       print(e);
+  }
 
+}
   Future<void> userLogIn () async{
     
       try {
@@ -82,7 +96,7 @@ final FirebaseAuth _auth = FirebaseAuth.instance;
     //  return HomePage();
     // print("authenticated");
     Navigator.push(context, MaterialPageRoute(
-       builder: (context) => HomePage(user)));
+       builder: (context) => HomePage()));
 
   } on FirebaseAuthException catch (e) {
     if (e.code == 'user-not-found') {

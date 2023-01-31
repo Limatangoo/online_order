@@ -4,14 +4,16 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:online_order/User/UserLogin.dart';
 import 'package:quantity_input/quantity_input.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:provider/provider.dart';
 
+import 'Checkout.dart';
+import 'Product.dart';
+
 class HomePage extends StatefulWidget {
-  final  user;
-  
-  const HomePage(this.user);
+const HomePage({Key? key}) : super(key: key);
   
   
   @override
@@ -26,34 +28,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    // final db = FirebaseFirestore.instance;
-    // await Firestore.instance.collection("collection").getDocuments();
-    // final docRef = db.collection("Menu").get();
-    // QuerySnapshot querySnapshot = await docRef.get();
-    // final _docData = querySnapshot.docs.map((doc) => doc.data()).toList();
-    // final QuerySnapshot snapshot =  FirebaseFirestore.instance.collection("Menu").get();
-    // for (var document in snapshot.documents) {
-    //   var data = document.data;
-    //   print(data);
-    // }
-    // final _docData = docRef.docs.map((doc) => doc.data()).toList();
-    // final allData = docRef.getDocuments();
-//         docRef.get().then(
-//     (DocumentSnapshot doc) {
-//      data = doc.data() as Map<String, dynamic>;
-//    print(data);
-//   },
-//   onError: (e) => print("Error getting document: $e"),
-// );
 
-  //   QuerySnapshot querySnapshot =  FirebaseFirestore.instance.collection("collection").get();
-    
-  // for (int i = 0; i < querySnapshot.documents.length; i++) {
-  //   var a = querySnapshot.documents[i];
-  //   print(a.documentID);
-  // }
-
-    // print(docRef);
   }
 
 
@@ -62,7 +37,7 @@ class _HomePageState extends State<HomePage> {
   // final foodDocument2 = db.collection("food1").doc("FSZlmK0OyfPnNLfRypN5");
     // final Stream<QuerySnapshot> _usersStream =FirebaseFirestore.instance.collection('Menu').snapshots();
      final Stream<QuerySnapshot> _MenuStream = FirebaseFirestore.instance.collection('Menu').snapshots();
- var finalMap = Map();
+ var itemVal = [];
   @override
   Widget build(BuildContext context) {
 
@@ -74,8 +49,9 @@ class _HomePageState extends State<HomePage> {
             badges.Badge(
             badgeContent: Text(cartval.toString()),
             child: Icon(Icons.shopping_cart),
-            onTap:cartIconPress
+            // onTap:cartIconPress
             ),
+            IconButton(icon:Icon(Icons.logout),onPressed: ()=>{_signOut()},),
             // IconButton(onPressed:cartIconPress, icon:const Icon(Icons.shopping_cart))
           ],
 
@@ -97,33 +73,36 @@ class _HomePageState extends State<HomePage> {
                children: snapshot.data!.docs.map((DocumentSnapshot document) {
             Map<String, dynamic> data = document.data()! as Map<String, dynamic>;
             var documentId = document.id;
-            var quantity = {documentId:0};
-            finalMap = {...finalMap, ...quantity};
-            example = finalMap[documentId];
+            // var quantity = {documentId:0};
+            // itemVal = {...itemVal, ...quantity};
+            
             // quantity.update(doumentId , (value) => value + 100);
-            return Container(
-              child: Column(
-                children: <Widget>[
-                  Image.asset('Assets/${data['Name']}.jpg',width: 70.0,height: 70.0,),
-                  Text(data['Name']),
-                  Text(data['Price'].toString()),
-                  Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      IconButton(icon:Icon(Icons.remove_circle_outline),onPressed: ()=>{minusItem(documentId)},),
-                      SizedBox(width: 10),
-                      Text(example.toString()),
-                      SizedBox(width: 10),
-                      IconButton(icon:Icon(Icons.add_circle_outline),onPressed: ()=>{addItem(documentId)},),
-                    ],
-                  )
-                  ,
-                 ElevatedButton(onPressed: ()=>{addToCart()}, child:const Text("Add to cart")),
-                  
-
-                ],
+            return GestureDetector(
+              //  onTap:()=>{navigateToProduct(documentId)},
+              child: Container(
+                child: Column(
+                  children: <Widget>[
+                    Image.asset('Assets/${data['Name']}.jpg',width: 70.0,height: 70.0,),
+                    Text(data['Name']),
+                    Text(data['Price'].toString()),
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        IconButton(icon:Icon(Icons.remove_circle_outline),onPressed: ()=>{minusItem(documentId)},),
+                        SizedBox(width: 10),
+                        Text("0"),
+                        SizedBox(width: 10),
+                        IconButton(icon:Icon(Icons.add_circle_outline),onPressed: ()=>{addItem(documentId)},),
+                      ],
+                    )
+                    ,
+                   ElevatedButton(onPressed: ()=>{addToCart()}, child:const Text("Add to cart")),
+                    
+            
+                  ],
+                ),
+                       
               ),
-           
             );
             }).toList(),
             );
@@ -133,22 +112,50 @@ class _HomePageState extends State<HomePage> {
     ));
 
  }
- void minusItem(id){
-  if(finalMap[id]>0){
-    finalMap[id]-=1;
+//  navigateToProduct(documentId){
+//    Navigator.push(context, MaterialPageRoute(
+//        builder: (context) => Product(documentId)));
+   
+//  }
+Future<void> _signOut() async {
+  await FirebaseAuth.instance.signOut();
+    Navigator.push(context, MaterialPageRoute(
+       builder: (context) => const UserLogin()));
+}
+void minusItem(id){
+  final db = FirebaseFirestore.instance;
+  final docRef = db.collection("Menu").doc(id);
 
-  }
+  docRef.get().then(
+  (DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
+      itemVal.map((val)=>{
+      if(val[id]==id){
+        //increment the qty;
+      
+        }
+      });
+   
+  },
+  onError: (e) => print("Error getting document: $e"),
+);
+  
+
+
      
  }
   void addItem(id){
-    if(finalMap[id]<5){
-      finalMap[id]+=1;
+  itemVal.map((val){
+    val[id] ??= 0;
+    if(val[id]<5){
+      val[id]+=1;
     }
-   print(finalMap[id]);
+  });
+   print(itemVal[id]);
  }
  void addToCart(){
   var newCartVal=0;
-   for(var v in finalMap.values){
+   for(var v in itemVal){
      if(v>0){
          newCartVal++;      
      }
@@ -158,12 +165,11 @@ class _HomePageState extends State<HomePage> {
       cartval = newCartVal;
     });
    }
-   print(finalMap);
+   print(itemVal);
  }
-//  void setValues(id){
-//   finalMap[id]+=1;
-//  }
-void cartIconPress(){
-  Navigator.pushNamed(context, '/userLogin');
-}
+
+// void cartIconPress(){
+//    Navigator.push(context, MaterialPageRoute(
+//        builder: (context) => Checkout(itemVal)));
+// }
 }

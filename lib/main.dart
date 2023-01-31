@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/navigator.dart';
+import 'package:online_order/User/HomePage.dart';
 import 'Admin/AdminLogin.dart';
 import 'User/UserLogin.dart';
 import 'firebase_options.dart';
@@ -12,56 +13,37 @@ Future<void> main() async{
    WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(MaterialApp(
-    routes: {
-        '/adminLogin':(context) => const AdminLogin(),
-        '/userLogin':(context) => const UserLogin(),
-      },
+
     debugShowCheckedModeBanner: false,
     home:LoginPage()));
 }
 
-class LoginPage extends StatefulWidget {
+class LoginPage extends StatelessWidget {
+ final FirebaseAuth _auth = FirebaseAuth.instance;
+
   @override
-  _LoginPageState createState() => _LoginPageState();
-}
-
-class _LoginPageState extends State<LoginPage> {
-
- 
-  adminLogin(){
-      Navigator.pushNamed(context, '/adminLogin');
+ Widget build(BuildContext context){
+        return FutureBuilder<User>(
+            future: Future.value(FirebaseAuth.instance.currentUser),
+            builder: (BuildContext context, AsyncSnapshot<User> snapshot){
+                       if (snapshot.hasData){
+                           final user = snapshot.data; // this is your user instance
+                           /// is because there is user already logged
+                           return const HomePage();
+                        }
+                         /// other way there is no user logged.
+                         return UserLogin();
+             }
+          );
     }
-  userLogin(){
-      Navigator.pushNamed(context, '/userLogin');
-  }
-  @override
-  Widget build(BuildContext context) {
-     return Scaffold(
-        appBar: AppBar(
-          title: Text('Select Your Role'),
-        ),
-        body: Center(
-          child:Column(
-      
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            SizedBox(height: 25.0,),
-            ElevatedButton(onPressed: adminLogin, 
-            child: const Text('Admin')),
-            ElevatedButton(onPressed: userLogin, 
-            child: const Text('User')),
-          ],
-        ),
-        )
-      );
     
-  }
+  
+
 
 
 
 
 
 }
-
 
 
