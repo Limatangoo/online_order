@@ -1,66 +1,141 @@
+import 'package:flutter/material.dart';
+import "package:provider/provider.dart";
+
+import '../Providers/Cart.dart';
 
 
-// import 'package:flutter/src/widgets/container.dart';
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:flutter/src/widgets/container.dart';
-// import 'package:flutter/src/widgets/framework.dart';
-// import 'package:flutter/material.dart';
-// import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:firebase_core/firebase_core.dart';
+class Checkout extends StatefulWidget {
+  
 
-// class Checkout extends StatefulWidget {
-//   var itemVal = new Map();
-//   Checkout(itemVal){
-//     this.itemVal = itemVal;
-//   }
-//   @override
-//   State<Checkout> createState() => _CheckoutState();
-// }
+  const Checkout({super.key});
 
-// class _CheckoutState extends State<Checkout> {
-//   // void initState() {
-//   //   super.initState();
-//   // }
-//   // int final;
-//  Future<DocumentSnapshot> CartVal()async{
-//  for(var docId in widget.itemVal.keys){
-//   final db = FirebaseFirestore.instance;
-//   final docRef = db.collection("Menu").doc(docId);
-//   docRef.get().then(
-//   (DocumentSnapshot doc) {
-//     final data = doc.data() as Map<String, dynamic>;
-//   },
-//   onError: (e) => print("Error getting document: $e"),
-// );
+  @override
+  State<Checkout> createState() => _CheckoutState();
+}
 
-     
-//    }
-// }
+class _CheckoutState extends State<Checkout> {
+  int totalAmount=0;
+  @override
+  Widget build(BuildContext context) {
+    
+    return  context.watch<Cart>().cartVal==null?
+     SafeArea(child:Scaffold(
+      body: const Text("No items in the cart")
+     ))
+    :SafeArea(
+      
+      child: Scaffold(
+        body: Column(
+          children: [ListView.builder(
+           padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 8.0),
+           shrinkWrap: true,
+           itemCount: context.watch<Cart>().cartVal,
+           itemBuilder: (context, index) {
+            // if(context.watch<Cart>().items[index]["price"]!=null){
+            //   for(int v=0; v < int.parse(context.watch<Cart>().cartVal); v++){
+            //     totalAmount += int.parse(context.watch<Cart>().items[index]["price"]);
 
-//   @override
-//   Widget build(BuildContext context) {
-//     CollectionReference Menu = FirebaseFirestore.instance.collection('Menu');
-//     return MaterialApp(
-//       home: Scaffold(
-//         appBar: AppBar(
-//           title: Text("Checkout"),
-//         ),
-//         body: FutureBuilder<Widget>(
-//        future: CartVal(),
-//        builder: (BuildContext context, AsyncSnapshot<Widget> snapshot){
-//          if(snapshot.hasData){
-//             children: <Widget>[
-//         Image.asset('Assets/${snapshot.data["Name"]}.jpg',width: 70.0,height: 70.0,),
-//         Text(data['Name']),
-//         Text(data['Price'].toString()),
-        
-
-//       ],
-//          }
-//          return Container(child: CircularProgressIndicator());
-//        }
-//       ),
-//       ),
-//     );
-//   }
-// }
+            //   }
+             
+              
+            // }
+            
+           return Card(
+             color: Colors.blueGrey.shade200,
+             elevation: 5.0,
+             child: Padding(
+               padding: const EdgeInsets.all(4.0),
+               child: Row(
+                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                 mainAxisSize: MainAxisSize.max,
+                 children: [
+                 
+                  Image.asset('Assets/${context.watch<Cart>().items[index]["name"]}.jpg',width: 80.0,height: 80.0,),
+                   
+                   SizedBox(
+                     width: 130,
+                     child: Column(
+                       crossAxisAlignment: CrossAxisAlignment.start,
+                       children: [
+                         const SizedBox(
+                           height: 5.0,
+                         ),
+                         RichText(
+                           overflow: TextOverflow.ellipsis,
+                           maxLines: 1,
+                           text: TextSpan(
+                               text: 'Name: ',
+                               style: TextStyle(
+                                   color: Colors.blueGrey.shade800,
+                                   fontSize: 16.0),
+                               children: [
+                                 TextSpan(
+                                     text:
+                                         '${context.watch<Cart>().items[index]["name"]}\n',
+                                     style: const TextStyle(
+                                         fontWeight: FontWeight.bold)),
+                               ]),
+                         ),
+                         RichText(
+                           maxLines: 1,
+                           text: TextSpan(
+                               text: 'Qty: ',
+                               style: TextStyle(
+                                   color: Colors.blueGrey.shade800,
+                                   fontSize: 16.0),
+                               children: [
+                                 TextSpan(
+                                     text:
+                                         '${context.watch<Cart>().items[index]["productCount"]}\n',
+                                     style: const TextStyle(
+                                         fontWeight: FontWeight.bold)),
+                               ]),
+                         ),
+                         RichText(
+                           maxLines: 1,
+                           text: TextSpan(
+                               text: 'Price: ' r"LKR",
+                               style: TextStyle(
+                                   color: Colors.blueGrey.shade800,
+                                   fontSize: 16.0),
+                               children: [
+                                 TextSpan(
+                                     text:
+                                         '${context.watch<Cart>().items[index]["price"]}\n',
+                                     style: const TextStyle(
+                                         fontWeight: FontWeight.bold)),
+                               ]),
+                         ),
+                       ],
+                     ),
+                   ),
+                   ElevatedButton(
+                       style: ElevatedButton.styleFrom(
+                           primary: Colors.blueGrey.shade900),
+                       onPressed: null,
+                       child: const Text('Remove')),
+                       
+                 ],
+               ),
+             ),
+           );
+           }), 
+           Flexible(flex: 1,child: Container(),),
+           
+           Container(
+          padding: EdgeInsets.symmetric(horizontal: 30),
+           height: 35,
+           color: Colors.blueGrey.shade200,
+           width: double.infinity,
+           child: Text(totalAmount.toString(),style: const TextStyle(fontSize: 18.0,fontWeight: FontWeight.w300),),
+    
+           ),
+            ElevatedButton(onPressed:() => context.read<Cart>().purchase(), child: Text("Pay Now"))
+    ]
+        ),
+      ),
+    );
+    
+   
+  }
+}

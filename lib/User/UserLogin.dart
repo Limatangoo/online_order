@@ -1,8 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/src/widgets/navigator.dart';
+import 'package:online_order/Admin/AdminPage.dart';
 import 'HomePage.dart';
 
 class UserLogin extends StatefulWidget {
@@ -56,7 +58,7 @@ final FirebaseAuth _auth = FirebaseAuth.instance;
                 controller: pwdData,
               ),
               SizedBox(height: 25.0,),
-              Text(err.toString()),
+              Text(err==null?"":err.toString()),
               ElevatedButton(
                 onPressed: (){userLogIn();},
                 child: const Text('Sign in'),
@@ -76,9 +78,20 @@ final FirebaseAuth _auth = FirebaseAuth.instance;
       try {
   final newUser = await _auth.createUserWithEmailAndPassword(
       email: emailData.text, password: pwdData.text);
+
+
+  
   if (newUser != null) {
+      final db = FirebaseFirestore.instance;
+       User? user = FirebaseAuth.instance.currentUser;
+       if(user!=null){
+       Map<String,dynamic> data = {"uid":user.uid,"role":"user"};
+        final newUsertoDb = await db.collection("User").doc(user.uid).set(data);
         Navigator.push(context, MaterialPageRoute(
        builder: (context) => HomePage()));
+
+       }
+     
   }
   } on FirebaseAuthException catch (e) {
        print(e);
@@ -93,10 +106,29 @@ final FirebaseAuth _auth = FirebaseAuth.instance;
       password: pwdData.text
     );
     final user = credential.user;
-    //  return HomePage();
-    // print("authenticated");
-    Navigator.push(context, MaterialPageRoute(
-       builder: (context) => HomePage()));
+
+    if(user!=null){
+        final db = FirebaseFirestore.instance;
+        final docRef = db.collection("User").doc(user.uid);
+        docRef.get().then(
+          (DocumentSnapshot doc) {
+            final data = doc.data() as Map<String, dynamic>;
+            if(data["role"]=="user"){
+                 Navigator.push(context, MaterialPageRoute(
+                 builder: (context) => HomePage()));
+
+            }
+            else if(data["role"]=="admin"){
+               Navigator.push(context, MaterialPageRoute(
+                 builder: (context) => const AdminPage()));
+            }
+          },
+          onError: (e) => print("Error getting document: $e"),
+        );
+
+    }
+  
+ 
 
   } on FirebaseAuthException catch (e) {
     if (e.code == 'user-not-found') {

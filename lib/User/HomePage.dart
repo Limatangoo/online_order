@@ -5,10 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:online_order/User/UserLogin.dart';
+import 'package:online_order/main.dart';
 import 'package:quantity_input/quantity_input.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:provider/provider.dart';
 
+import '../Providers/Cart.dart';
 import 'Checkout.dart';
 import 'Product.dart';
 
@@ -47,7 +49,7 @@ class _HomePageState extends State<HomePage> {
           title: const Text("Home page"),
           actions: [
             badges.Badge(
-            badgeContent: Text(cartval.toString()),
+            badgeContent: Text(context.watch<Cart>().cartVal.toString()),
             child: Icon(Icons.shopping_cart),
             // onTap:cartIconPress
             ),
@@ -68,35 +70,24 @@ class _HomePageState extends State<HomePage> {
             }
             return GridView.count(
                crossAxisSpacing: 10,
-               mainAxisSpacing: 50,
+               mainAxisSpacing: 20,
                crossAxisCount: 2,
                children: snapshot.data!.docs.map((DocumentSnapshot document) {
             Map<String, dynamic> data = document.data()! as Map<String, dynamic>;
             var documentId = document.id;
-            // var quantity = {documentId:0};
-            // itemVal = {...itemVal, ...quantity};
-            
-            // quantity.update(doumentId , (value) => value + 100);
+           
             return GestureDetector(
-              //  onTap:()=>{navigateToProduct(documentId)},
+              onTap:()=>{ Navigator.push(context, MaterialPageRoute(
+              builder: (context) =>Product(productId:documentId,price:data['Price'].toString(),name:data['Name'])))},
               child: Container(
                 child: Column(
                   children: <Widget>[
                     Image.asset('Assets/${data['Name']}.jpg',width: 70.0,height: 70.0,),
                     Text(data['Name']),
                     Text(data['Price'].toString()),
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        IconButton(icon:Icon(Icons.remove_circle_outline),onPressed: ()=>{minusItem(documentId)},),
-                        SizedBox(width: 10),
-                        Text("0"),
-                        SizedBox(width: 10),
-                        IconButton(icon:Icon(Icons.add_circle_outline),onPressed: ()=>{addItem(documentId)},),
-                      ],
-                    )
-                    ,
-                   ElevatedButton(onPressed: ()=>{addToCart()}, child:const Text("Add to cart")),
+                    
+                    
+                  
                     
             
                   ],
@@ -122,51 +113,8 @@ Future<void> _signOut() async {
     Navigator.push(context, MaterialPageRoute(
        builder: (context) => const UserLogin()));
 }
-void minusItem(id){
-  final db = FirebaseFirestore.instance;
-  final docRef = db.collection("Menu").doc(id);
-
-  docRef.get().then(
-  (DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
-      itemVal.map((val)=>{
-      if(val[id]==id){
-        //increment the qty;
-      
-        }
-      });
-   
-  },
-  onError: (e) => print("Error getting document: $e"),
-);
-  
 
 
-     
- }
-  void addItem(id){
-  itemVal.map((val){
-    val[id] ??= 0;
-    if(val[id]<5){
-      val[id]+=1;
-    }
-  });
-   print(itemVal[id]);
- }
- void addToCart(){
-  var newCartVal=0;
-   for(var v in itemVal){
-     if(v>0){
-         newCartVal++;      
-     }
-   }
-   if(newCartVal>cartval || newCartVal<cartval){
-    setState(() {
-      cartval = newCartVal;
-    });
-   }
-   print(itemVal);
- }
 
 // void cartIconPress(){
 //    Navigator.push(context, MaterialPageRoute(
